@@ -38,15 +38,13 @@ TEST(ExampleDisk, BootRecord) {
   BootRecord mbr;
   std::memcpy(&mbr, example_disk.data(), sizeof(mbr));
 
+  std::cout << mbr << std::endl;
+
   EXPECT_EQ(mbr.partitions[0].status, 0x80);
   EXPECT_EQ(
       mbr.partitions[0].chs_start,
       (ChsAddress{.head = 0, .sector = 1, .cylinder_hi = 0, .cylinder_lo = 0}));
   EXPECT_EQ(mbr.boot_signature, 0xAA'55);
-
-  for (const auto& p : mbr.partitions) {
-    std::cout << p << std::endl;
-  }
 }
 
 }  // namespace
