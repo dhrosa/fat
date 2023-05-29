@@ -1,7 +1,10 @@
+add_custom_command(OUTPUT example.disk
+  DEPENDS make_disk.py
+  COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/make_disk.py ${CMAKE_CURRENT_BINARY_DIR}/example.disk
+)
+
 add_custom_command(OUTPUT example_disk_bin.o
-  BYPRODUCTS example.disk
-  COMMAND dd if=/dev/zero of=example.disk bs=1M count=16
-  COMMAND mkfs.fat -v -F 16 --mbr=yes -n EXAMPLE --invariant example.disk
+  DEPENDS example.disk
   COMMAND ld -z noexecstack --relocatable --format=binary -o example_disk_bin.o example.disk
 )
 
