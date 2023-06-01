@@ -69,6 +69,29 @@ struct BootRecord {
   std::uint8_t unused[384];
   PartitionEntry partitions[4];
   std::uint16_t boot_signature;
+
+  std::uint32_t total_sectors() const {
+    return bpb.sectors == 0 ? bpb.extended_sectors : bpb.sectors;
+  }
+
+  std::uint32_t root_dir_sectors() const {
+    return (bpb.root_entries * 32 + (bpb.bytes_per_sector - 1)) /
+           (bpb.bytes_per_sector);
+  }
+
+  std::uint32_t first_data_sector() const {
+    return bpb.reserved_sectors + (bpb.fats * bpb.sectors_per_fat) +
+           root_dir_sectors();
+  }
+
+  std::uint32_t data_sectors() const {
+    return total_sectors() - first_data_sector();
+  }
+
+  std::uint32_t clusters() const {
+    return data_sectors() / bpb.sectors_per_cluster;
+  }
+
 } __attribute__((packed));
 static_assert(sizeof(BootRecord) == 512);
 

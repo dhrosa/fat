@@ -57,5 +57,13 @@ std::ostream& operator<<(std::ostream& s, const BootRecord& r) {
     s << fmt::format("\npartitions[{}]: {}", i, fmt::streamed(r.partitions[i]));
   }
   s << fmt::format("\nboot_signature={:#06x}", r.boot_signature);
+  s << fmt::format(
+      "\n(total_sectors)={:#x}"
+      "\n(root_dir_sectors)={:#x}"
+      "\n(first_data_sector)={:#x}"
+      "\n(data_sectors)={:#x}"
+      "\n(clusters)={:#x}",
+      r.total_sectors(), r.root_dir_sectors(), r.first_data_sector(),
+      r.data_sectors(), r.clusters());
   return s;
 }
