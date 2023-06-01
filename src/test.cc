@@ -47,4 +47,26 @@ TEST(ExampleDisk, BootRecord) {
   EXPECT_EQ(mbr.boot_signature, 0xAA'55);
 }
 
+TEST(ExampleDisk, Regions) {
+  using Sector = std::byte[512];
+  auto sectors = std::span(reinterpret_cast<const Sector*>(example_disk.data()),
+                           example_disk.size() / sizeof(Sector));
+
+  BootRecord mbr;
+  std::memcpy(&mbr, sectors[0], sizeof(mbr));
+  sectors = sectors.subspan(mbr.bpb.reserved_sectors);
+
+  const auto fat_sectors =
+      sectors.first(mbr.bpb.fats * mbr.bpb.sectors_per_fat);
+  sectors = sectors.subspan(fat_sectors.size());
+
+  const auto root_dir_sectors = sectors.first(mbr.root_dir_sectors());
+
+  const auto data_sectors = sectors.subspan(root_dir_sectors.size());
+  EXPECT_EQ(data_sectors.size(), mbr.data_sectors());
+
+  PrintHexData(fat_sectors[0]);
+  PrintHexData(root_dir_sectors[0]);
+}
+
 }  // namespace
