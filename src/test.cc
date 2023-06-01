@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "boot_record.h"
+#include "directory.h"
 #include "example_disk.h"
 
 namespace {
