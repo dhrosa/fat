@@ -54,7 +54,11 @@ std::ostream& operator<<(std::ostream& s, const BootRecord& r) {
   s << "BPB: " << r.bpb;
   s << "\nEBPB: " << r.ebpb;
   for (int i = 0; i < std::size(r.partitions); ++i) {
-    s << fmt::format("\npartitions[{}]: {}", i, fmt::streamed(r.partitions[i]));
+    const PartitionEntry& partition = r.partitions[i];
+    if (partition.status == 0) {
+      continue;
+    }
+    s << fmt::format("\npartitions[{}]: {}", i, fmt::streamed(partition));
   }
   s << fmt::format("\nboot_signature={:#06x}", r.boot_signature);
   s << fmt::format(

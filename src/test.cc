@@ -12,7 +12,7 @@
 namespace {
 
 void PrintHexData(std::span<const std::byte> data) {
-  const int bytes_per_line = 16;
+  const int bytes_per_line = 64;
   const int row_prefix_width = 4 + 1;
   std::cout << std::string(row_prefix_width, ' ');
   for (int i = 0; i < bytes_per_line; ++i) {
