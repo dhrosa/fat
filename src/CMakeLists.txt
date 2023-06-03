@@ -14,6 +14,7 @@ add_library(example_disk example_disk_bin.o)
 set_target_properties(example_disk PROPERTIES LINKER_LANGUAGE C)
 
 add_library(fat
+  directory.cc
   boot_record.cc)
 target_link_libraries(fat fmt)
 
