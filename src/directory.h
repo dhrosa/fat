@@ -69,13 +69,13 @@ class Directory::Iterator {
   const Entry& operator->() const { return entry(); }
 
   Iterator& operator++() {
-    do {
+    while (true) {
       ++entries_;
       if (entry().IsDeleted()) {
         continue;
       }
-    } while (!entry().IsEnd());
-    return *this;
+      return *this;
+    }
   }
 
   Iterator operator++(int) {

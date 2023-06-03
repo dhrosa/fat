@@ -33,6 +33,9 @@ Directory::Entry::operator std::string() const {
   if (attributes == 0x0F) {
     return "<LFN>";
   }
+  if (attributes == 0x08) {
+    return "<VOLUME LABEL>";
+  }
   return fmt::format(
       "name={} attr={:#x} ctime={} cdate={} adate={} eattr={:#x} mtime={} "
       "mdate={} start_cluster={:#x} size={:#x}",
