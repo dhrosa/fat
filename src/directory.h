@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <iostream>
 #include <string>
 
 class Directory {
@@ -23,7 +24,7 @@ struct Directory::Entry {
     std::uint16_t minutes : 6;
     std::uint16_t hours : 5;
 
-    operator std::string() const;
+    std::string to_string() const;
 
   } __attribute__((packed));
   static_assert(sizeof(Time) == 3);
@@ -33,7 +34,7 @@ struct Directory::Entry {
     std::uint16_t month : 4;
     std::uint16_t year_offset_1980 : 7;
 
-    operator std::string() const;
+    std::string to_string() const;
   } __attribute__((packed));
   static_assert(sizeof(Date) == 2);
 
@@ -46,7 +47,7 @@ struct Directory::Entry {
   std::uint16_t start_cluster;
   std::uint32_t size;
 
-  operator std::string() const;
+  std::string to_string() const;
 
   std::string name() const;
 
@@ -56,6 +57,20 @@ struct Directory::Entry {
 
 } __attribute__((packed));
 static_assert(sizeof(Directory::Entry) == 32);
+
+template <typename T, typename... Choices>
+concept IsAnyOf = (std::same_as<T, Choices> || ...);
+
+template <typename T>
+concept IsDirectoryType = IsAnyOf<T, Directory::Entry::Time,
+                                  Directory::Entry::Date, Directory::Entry>;
+
+// fmtlib extension point.
+std::string format_as(IsDirectoryType auto const& t) { return t.to_string(); }
+
+std::ostream& operator<<(std::ostream& s, IsDirectoryType auto const& t) {
+  return s << t.to_string();
+}
 
 class Directory::Iterator {
  public:

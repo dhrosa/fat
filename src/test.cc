@@ -69,11 +69,12 @@ TEST(ExampleDisk, Regions) {
   PrintHexData(fat_sectors[0]);
   PrintHexData(root_dir_sectors[0]);
 
-  const auto* entries = reinterpret_cast<const Directory::Entry*>(root_dir_sectors[0]);
+  const auto* entries =
+      reinterpret_cast<const Directory::Entry*>(root_dir_sectors[0]);
 
   auto iter = Directory::Iterator(entries);
   while (iter != iter) {
-    std::cout << std::string(*(iter++)) << std::endl;
+    std::cout << *(iter++) << std::endl;
   }
 }
 
