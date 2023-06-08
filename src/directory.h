@@ -62,6 +62,12 @@ struct Directory::RawEntry {
 
   bool IsDeleted() const { return stem[0] == 0xE5; }
 
+  bool IsLfn() const { return attributes == 0x0F; }
+
+  bool IsVolume() const { return attributes == 0x08; }
+
+  const RawLfnEntry& as_lfn() const;
+
 } __attribute__((packed));
 static_assert(sizeof(Directory::RawEntry) == 32);
 

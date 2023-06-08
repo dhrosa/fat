@@ -30,19 +30,23 @@ std::string Directory::RawEntry::to_string() const {
   if (IsDeleted()) {
     return "<DELETED>";
   }
-  if (attributes == 0x0F) {
-    return "LFN: " + reinterpret_cast<const RawLfnEntry&>(*this).to_string();
-    // return "<LFN>";
+  if (IsLfn()) {
+    return fmt::format("lfn entry: {}", as_lfn());
   }
-  if (attributes == 0x08) {
-    return "<VOLUME LABEL>";
+  if (IsVolume()) {
+    return fmt::format("volume entry: {}", name());
   }
   return fmt::format(
-      "name={} attr={:#x} ctime={} cdate={} adate={} eattr={:#x} mtime={} "
+      "8.3 entry: name={} attr={:#x} ctime={} cdate={} adate={} eattr={:#x} "
+      "mtime={} "
       "mdate={} start_cluster={:#x} size={:#x}",
       name(), attributes, creation_time, creation_date, last_access_date,
       extended_attributes, last_modified_time, last_modified_date,
       start_cluster, size);
+}
+
+const Directory::RawLfnEntry& Directory::RawEntry::as_lfn() const {
+  return reinterpret_cast<const RawLfnEntry&>(*this);
 }
 
 std::string Directory::RawLfnEntry::to_string() const {
