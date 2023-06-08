@@ -14,16 +14,16 @@ std::string_view StripPadding(std::string_view str) {
 }
 }  // namespace
 
-std::string Directory::Entry::Time::to_string() const {
+std::string Directory::RawEntry::Time::to_string() const {
   return fmt::format("{:02d}:{:02d}:{:02d}", hours, minutes, 2 * biseconds);
 }
 
-std::string Directory::Entry::Date::to_string() const {
+std::string Directory::RawEntry::Date::to_string() const {
   return fmt::format("{:04d}/{:02d}/{:02d}", year_offset_1980 + 1980, month,
                      day);
 }
 
-std::string Directory::Entry::to_string() const {
+std::string Directory::RawEntry::to_string() const {
   if (IsEnd()) {
     return "<END>";
   }
@@ -44,7 +44,7 @@ std::string Directory::Entry::to_string() const {
       start_cluster, size);
 }
 
-std::string Directory::Entry::name() const {
+std::string Directory::RawEntry::name() const {
   const std::string_view stripped_extension = StripPadding(std::string_view(
       reinterpret_cast<const char*>(extension), sizeof(extension)));
   std::string out(StripPadding(

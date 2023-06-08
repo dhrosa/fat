@@ -7,19 +7,19 @@
 
 class Directory {
  public:
-  struct Entry;
-  class Iterator;
+  struct RawEntry;
+  class RawIterator;
 
-  Directory(const Entry* entries) : entries_(entries) {}
+  Directory(const RawEntry* entries) : entries_(entries) {}
 
-  Iterator begin() const;
-  Iterator end() const;
+  RawIterator begin() const;
+  RawIterator end() const;
 
  private:
-  const Entry* entries_;
+  const RawEntry* entries_;
 };
 
-struct Directory::Entry {
+struct Directory::RawEntry {
   std::uint8_t stem[8];
   std::uint8_t extension[3];
   std::uint8_t attributes;
@@ -63,14 +63,15 @@ struct Directory::Entry {
   bool IsDeleted() const { return stem[0] == 0xE5; }
 
 } __attribute__((packed));
-static_assert(sizeof(Directory::Entry) == 32);
+static_assert(sizeof(Directory::RawEntry) == 32);
 
 template <typename T, typename... Choices>
 concept IsAnyOf = (std::same_as<T, Choices> || ...);
 
 template <typename T>
-concept IsDirectoryType = IsAnyOf<T, Directory::Entry::Time,
-                                  Directory::Entry::Date, Directory::Entry>;
+concept IsDirectoryType =
+    IsAnyOf<T, Directory::RawEntry::Time, Directory::RawEntry::Date,
+            Directory::RawEntry>;
 
 // fmtlib extension point.
 std::string format_as(IsDirectoryType auto const& t) { return t.to_string(); }
@@ -79,24 +80,24 @@ std::ostream& operator<<(std::ostream& s, IsDirectoryType auto const& t) {
   return s << t.to_string();
 }
 
-class Directory::Iterator {
+class Directory::RawIterator {
  public:
   // Required to model std::forward_iterator
   using difference_type = std::ptrdiff_t;
-  using value_type = const Directory::Entry;
+  using value_type = const Directory::RawEntry;
   using iterator_category = std::forward_iterator_tag;
-  Iterator() = default;
+  RawIterator() = default;
 
-  Iterator(const Entry* entries) : entries_(entries) {}
+  RawIterator(const RawEntry* entries) : entries_(entries) {}
 
-  bool operator==(const Iterator&) const { return entry().IsEnd(); }
+  bool operator==(const RawIterator&) const { return entry().IsEnd(); }
 
-  const Entry& entry() const { return entries_[0]; }
+  const RawEntry& entry() const { return entries_[0]; }
 
-  const Entry& operator*() const { return entry(); }
-  const Entry& operator->() const { return entry(); }
+  const RawEntry& operator*() const { return entry(); }
+  const RawEntry& operator->() const { return entry(); }
 
-  Iterator& operator++() {
+  RawIterator& operator++() {
     while (true) {
       ++entries_;
       if (entry().IsDeleted()) {
@@ -106,18 +107,20 @@ class Directory::Iterator {
     }
   }
 
-  Iterator operator++(int) {
-    Iterator copy = *this;
+  RawIterator operator++(int) {
+    RawIterator copy = *this;
     ++(*this);
     return copy;
   }
 
  private:
-  const Entry* entries_ = nullptr;
+  const RawEntry* entries_ = nullptr;
 };
 
-inline Directory::Iterator Directory::begin() const {
-  return Iterator(entries_);
+inline Directory::RawIterator Directory::begin() const {
+  return RawIterator(entries_);
 }
 
-inline Directory::Iterator Directory::end() const { return Iterator(nullptr); }
+inline Directory::RawIterator Directory::end() const {
+  return RawIterator(nullptr);
+}

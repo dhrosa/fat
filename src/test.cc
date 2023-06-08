@@ -70,10 +70,10 @@ TEST(ExampleDisk, Regions) {
   PrintHexData(root_dir_sectors[0]);
 
   const auto* entries =
-      reinterpret_cast<const Directory::Entry*>(root_dir_sectors[0]);
+      reinterpret_cast<const Directory::RawEntry*>(root_dir_sectors[0]);
   Directory dir(entries);
 
-  for (const Directory::Entry& entry : dir) {
+  for (const Directory::RawEntry& entry : dir) {
     std::cout << entry << std::endl;
   }
 }
