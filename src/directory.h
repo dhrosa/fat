@@ -8,6 +8,7 @@
 class Directory {
  public:
   struct RawEntry;
+  struct RawLfnEntry;
   class RawIterator;
 
   Directory(const RawEntry* entries) : entries_(entries) {}
@@ -64,13 +65,36 @@ struct Directory::RawEntry {
 } __attribute__((packed));
 static_assert(sizeof(Directory::RawEntry) == 32);
 
+struct Directory::RawLfnEntry {
+  std::uint8_t seqnum : 5;
+  std::uint8_t unused0 : 1;
+  bool is_last : 1;
+  std::uint8_t unused1 : 1;
+
+  std::uint16_t name0[5];
+  std::uint8_t attr;
+  std::uint8_t type;
+  std::uint8_t checksum;
+  std::uint16_t name1[6];
+  std::uint16_t start_cluster;
+  std::uint16_t name2[2];
+
+  std::string to_string() const;
+
+  std::u16string name16() const;
+
+  std::string name() const;
+
+} __attribute__((packed));
+static_assert(sizeof(Directory::RawLfnEntry) == sizeof(Directory::RawEntry));
+
 template <typename T, typename... Choices>
 concept IsAnyOf = (std::same_as<T, Choices> || ...);
 
 template <typename T>
 concept IsDirectoryType =
     IsAnyOf<T, Directory::RawEntry::Time, Directory::RawEntry::Date,
-            Directory::RawEntry>;
+            Directory::RawEntry, Directory::RawLfnEntry>;
 
 // fmtlib extension point.
 std::string format_as(IsDirectoryType auto const& t) { return t.to_string(); }

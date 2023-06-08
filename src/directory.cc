@@ -31,7 +31,8 @@ std::string Directory::RawEntry::to_string() const {
     return "<DELETED>";
   }
   if (attributes == 0x0F) {
-    return "<LFN>";
+    return "LFN: " + reinterpret_cast<const RawLfnEntry&>(*this).to_string();
+    // return "<LFN>";
   }
   if (attributes == 0x08) {
     return "<VOLUME LABEL>";
@@ -42,6 +43,40 @@ std::string Directory::RawEntry::to_string() const {
       name(), attributes, creation_time, creation_date, last_access_date,
       extended_attributes, last_modified_time, last_modified_date,
       start_cluster, size);
+}
+
+std::string Directory::RawLfnEntry::to_string() const {
+  return fmt::format("seqnum={:x} is_last={} attr={:#x} (name)={}", seqnum,
+                     is_last, attr, name());
+}
+
+std::u16string Directory::RawLfnEntry::name16() const {
+  std::u16string str;
+  auto append = [&](const auto& chars) {
+    for (std::uint16_t c : chars) {
+      if (c == 0 || c == 0xFF'FF) {
+        break;
+      }
+      str.push_back(c);
+    }
+  };
+  append(name0);
+  append(name1);
+  append(name2);
+  return str;
+}
+
+std::string Directory::RawLfnEntry::name() const {
+  std::string str;
+  // Naive conversion that only handles ASCII.
+  for (char16_t c16 : name16()) {
+    if (c16 < 0xFF) {
+      str.push_back(static_cast<char>(c16));
+    } else {
+      str.push_back('?');
+    }
+  }
+  return str;
 }
 
 std::string Directory::RawEntry::name() const {

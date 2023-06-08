@@ -21,5 +21,5 @@ target_link_libraries(fat fmt)
 include(GoogleTest)
 
 add_executable(fat_test test.cc)
-target_link_libraries(fat_test gmock gtest_main example_disk fat fmt)
+target_link_libraries(fat_test gmock gtest_main example_disk fat fmt range-v3)
 gtest_discover_tests(fat_test)

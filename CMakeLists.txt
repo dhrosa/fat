@@ -14,7 +14,11 @@ FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
   GIT_TAG 10.0.0)
+FetchContent_Declare(
+  range
+  GIT_REPOSITORY https://github.com/ericniebler/range-v3
+  GIT_TAG 0.12.0)
 
-FetchContent_MakeAvailable(googletest fmt)
+FetchContent_MakeAvailable(googletest fmt range)
 
 add_subdirectory(src)
