@@ -71,11 +71,13 @@ TEST(ExampleDisk, Regions) {
 
   const auto* entries =
       reinterpret_cast<const Directory::Entry*>(root_dir_sectors[0]);
+  Directory dir(entries);
 
-  auto iter = Directory::Iterator(entries);
-  while (iter != iter) {
-    std::cout << *(iter++) << std::endl;
+  for (const Directory::Entry& entry : dir) {
+    std::cout << entry << std::endl;
   }
 }
+
+static_assert(std::ranges::forward_range<Directory>);
 
 }  // namespace

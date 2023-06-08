@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <iterator>
 #include <string>
 
 class Directory {
@@ -9,7 +10,13 @@ class Directory {
   struct Entry;
   class Iterator;
 
+  Directory(const Entry* entries) : entries_(entries) {}
+
+  Iterator begin() const;
+  Iterator end() const;
+
  private:
+  const Entry* entries_;
 };
 
 struct Directory::Entry {
@@ -74,6 +81,12 @@ std::ostream& operator<<(std::ostream& s, IsDirectoryType auto const& t) {
 
 class Directory::Iterator {
  public:
+  // Required to model std::forward_iterator
+  using difference_type = std::ptrdiff_t;
+  using value_type = const Directory::Entry;
+  using iterator_category = std::forward_iterator_tag;
+  Iterator() = default;
+
   Iterator(const Entry* entries) : entries_(entries) {}
 
   bool operator==(const Iterator&) const { return entry().IsEnd(); }
@@ -100,5 +113,11 @@ class Directory::Iterator {
   }
 
  private:
-  const Entry* entries_;
+  const Entry* entries_ = nullptr;
 };
+
+inline Directory::Iterator Directory::begin() const {
+  return Iterator(entries_);
+}
+
+inline Directory::Iterator Directory::end() const { return Iterator(nullptr); }
