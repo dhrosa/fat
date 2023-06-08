@@ -73,11 +73,12 @@ TEST(ExampleDisk, Regions) {
       reinterpret_cast<const Directory::RawEntry*>(root_dir_sectors[0]);
   Directory dir(entries);
 
-  for (const Directory::RawEntry& entry : dir) {
+  for (const Directory::RawEntry& entry : dir.raw()) {
     std::cout << entry << std::endl;
   }
 }
 
-static_assert(std::ranges::forward_range<Directory>);
+static_assert(
+    std::ranges::forward_range<decltype(std::declval<Directory>().raw())>);
 
 }  // namespace

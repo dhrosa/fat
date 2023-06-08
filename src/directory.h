@@ -12,8 +12,7 @@ class Directory {
 
   Directory(const RawEntry* entries) : entries_(entries) {}
 
-  RawIterator begin() const;
-  RawIterator end() const;
+  auto raw() const;
 
  private:
   const RawEntry* entries_;
@@ -117,10 +116,13 @@ class Directory::RawIterator {
   const RawEntry* entries_ = nullptr;
 };
 
-inline Directory::RawIterator Directory::begin() const {
-  return RawIterator(entries_);
-}
+inline auto Directory::raw() const {
+  struct RawRange {
+    RawIterator iter;
 
-inline Directory::RawIterator Directory::end() const {
-  return RawIterator(nullptr);
+    auto begin() const { return iter; }
+
+    auto end() const { return iter; };
+  };
+  return RawRange{RawIterator(entries_)};
 }
