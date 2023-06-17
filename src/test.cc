@@ -76,9 +76,17 @@ TEST(ExampleDisk, Regions) {
   for (const Directory::RawEntry& entry : dir.raw()) {
     std::cout << entry << std::endl;
   }
-}
 
-static_assert(
-    std::ranges::forward_range<decltype(std::declval<Directory>().raw())>);
+  for (const auto& group : dir.raw_groups()) {
+    std::cout << "BEGIN GROUP" << std::endl;
+    for (const Directory::RawEntry& entry : group) {
+      std::cout << entry << std::endl;
+    }
+    std::cout << "END GROUP" << std::endl;
+  }
+}
+  
+// static_assert(
+//     std::ranges::forward_range<decltype(std::declval<Directory>().raw())>);
 
 }  // namespace

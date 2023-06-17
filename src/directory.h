@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <iostream>
 #include <iterator>
+#include <range/v3/all.hpp>
+#include <span>
 #include <string>
 
 class Directory {
@@ -14,6 +16,8 @@ class Directory {
   Directory(const RawEntry* entries) : entries_(entries) {}
 
   auto raw() const;
+
+  auto raw_groups() const;
 
  private:
   const RawEntry* entries_;
@@ -109,50 +113,23 @@ std::ostream& operator<<(std::ostream& s, IsDirectoryType auto const& t) {
   return s << t.to_string();
 }
 
-class Directory::RawIterator {
- public:
-  // Required to model std::forward_iterator
-  using difference_type = std::ptrdiff_t;
-  using value_type = const Directory::RawEntry;
-  using iterator_category = std::forward_iterator_tag;
-  RawIterator() = default;
-
-  RawIterator(const RawEntry* entries) : entries_(entries) {}
-
-  bool operator==(const RawIterator&) const { return entry().IsEnd(); }
-
-  const RawEntry& entry() const { return entries_[0]; }
-
-  const RawEntry& operator*() const { return entry(); }
-  const RawEntry& operator->() const { return entry(); }
-
-  RawIterator& operator++() {
-    while (true) {
-      ++entries_;
-      if (entry().IsDeleted()) {
-        continue;
-      }
-      return *this;
-    }
-  }
-
-  RawIterator operator++(int) {
-    RawIterator copy = *this;
-    ++(*this);
-    return copy;
-  }
-
- private:
-  const RawEntry* entries_ = nullptr;
-};
-
 inline auto Directory::raw() const {
-  struct RawRange {
-    RawIterator iter;
-
-    auto begin() const { return iter; }
-
-    auto end() const { return iter; };
+  struct PointerRange : public ranges::view_facade<PointerRange> {
+    friend ranges::range_access;
+    const RawEntry* entries;
+    bool equal(ranges::default_sentinel_t) const { return read().IsEnd(); }
+    bool equal(const PointerRange& other) const { return entries == other.entries; }
+    const RawEntry& read() const { return entries[0]; }
+    void next() { ++entries; }
   };
-  return RawRange{RawIterator(entries_)};
+  return PointerRange{.entries = entries_};
+}
+
+inline auto Directory::raw_groups() const {
+  return raw() |
+         ranges::views::chunk_by([](const RawEntry& a, const RawEntry& b) {
+           // Element A and B belongs in the same chunk as long as A is an LFN
+           // entry.
+           return a.IsLfn();
+         });
 }
