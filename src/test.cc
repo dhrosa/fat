@@ -9,6 +9,7 @@
 #include "directory.h"
 #include "example_disk.h"
 
+namespace fat {
 namespace {
 
 void PrintHexData(std::span<const std::byte> data) {
@@ -70,23 +71,21 @@ TEST(ExampleDisk, Regions) {
   PrintHexData(root_dir_sectors[0]);
 
   const auto* entries =
-      reinterpret_cast<const Directory::RawEntry*>(root_dir_sectors[0]);
+      reinterpret_cast<const raw::Entry*>(root_dir_sectors[0]);
   Directory dir(entries);
 
-  for (const Directory::RawEntry& entry : dir.raw()) {
+  for (const raw::Entry& entry : dir.raw()) {
     std::cout << entry << std::endl;
   }
 
   for (const auto& group : dir.raw_groups()) {
     std::cout << "BEGIN GROUP" << std::endl;
-    for (const Directory::RawEntry& entry : group) {
+    for (const raw::Entry& entry : group) {
       std::cout << entry << std::endl;
     }
     std::cout << "END GROUP" << std::endl;
   }
 }
-  
-// static_assert(
-//     std::ranges::forward_range<decltype(std::declval<Directory>().raw())>);
 
 }  // namespace
+}  // namespace fat

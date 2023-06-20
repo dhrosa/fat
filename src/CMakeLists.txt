@@ -15,6 +15,7 @@ set_target_properties(example_disk PROPERTIES LINKER_LANGUAGE C)
 
 add_library(fat
   directory.cc
+  directory/raw.cc
   boot_record.cc)
 target_link_libraries(fat fmt range-v3)
 
