@@ -78,12 +78,8 @@ TEST(ExampleDisk, Regions) {
     std::cout << entry << std::endl;
   }
 
-  for (const auto& group : dir.raw_groups()) {
-    std::cout << "BEGIN GROUP" << std::endl;
-    for (const raw::Entry& entry : group) {
-      std::cout << entry << std::endl;
-    }
-    std::cout << "END GROUP" << std::endl;
+  for (const Entry& entry : dir.entries()) {
+    std::cout << entry.to_string() << std::endl;
   }
 }
 
