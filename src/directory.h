@@ -32,33 +32,25 @@ class Directory {
  public:
   Directory(const raw::Entry* entries) : entries_(entries) {}
 
-  auto raw() const;
+  // Range of raw::Entry instances in this directory.
+  ranges::bidirectional_range auto raw_entries() const;
 
+  // Range of Entry instances in this directory.
   ranges::forward_range auto entries() const;
 
  private:
   const raw::Entry* entries_;
 };
 
-inline auto Directory::raw() const {
-  struct PointerRange : public ranges::view_facade<PointerRange> {
-    friend ranges::range_access;
-    const raw::Entry* entries;
-    bool equal(ranges::default_sentinel_t) const { return read().IsEnd(); }
-    bool equal(const PointerRange& other) const {
-      return entries == other.entries;
-    }
-    const raw::Entry& read() const { return entries[0]; }
-    void next() { ++entries; }
-  };
-  return PointerRange{.entries = entries_};
+inline ranges::bidirectional_range auto Directory::raw_entries() const {
+  return ranges::subrange(entries_, std::unreachable_sentinel_t{}) |
+         ranges::views::take_while(
+             [](const raw::Entry& e) { return not e.IsEnd(); });
 }
 
 inline ranges::forward_range auto Directory::entries() const {
   namespace views = ranges::views;
-  return ranges::subrange(entries_, std::unreachable_sentinel_t{}) |
-         views::take_while([](const raw::Entry& e) { return not e.IsEnd(); }) |
-         views::filter([](const raw::Entry& entry) {
+  return raw_entries() | views::filter([](const raw::Entry& entry) {
            return not(entry.IsVolume() or entry.IsDeleted());
          }) |
          views::chunk_by([](const raw::Entry& a, const raw::Entry& b) {

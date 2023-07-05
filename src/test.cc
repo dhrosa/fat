@@ -74,7 +74,7 @@ TEST(ExampleDisk, Regions) {
       reinterpret_cast<const raw::Entry*>(root_dir_sectors[0]);
   Directory dir(entries);
 
-  for (const raw::Entry& entry : dir.raw()) {
+  for (const raw::Entry& entry : dir.raw_entries()) {
     std::cout << entry << std::endl;
   }
 
