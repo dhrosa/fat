@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <string>
 
+#include "format.h"
+
 namespace fat::raw {
 
 struct Time {
@@ -82,17 +84,15 @@ struct LfnEntry {
 } __attribute__((packed));
 static_assert(sizeof(LfnEntry) == sizeof(Entry));
 
-template <typename T, typename... Choices>
-concept IsAnyOf = (std::same_as<T, Choices> || ...);
-
-template <typename T>
-concept IsDirectoryType = IsAnyOf<T, Time, Date, Entry, LfnEntry>;
-
-// fmtlib extension point.
-std::string format_as(IsDirectoryType auto const& t) { return t.to_string(); }
-
-std::ostream& operator<<(std::ostream& s, IsDirectoryType auto const& t) {
-  return s << t.to_string();
-}
-
 }  // namespace fat::raw
+
+namespace fat {
+template <>
+inline constexpr bool is_printable<raw::Time> = true;
+template <>
+inline constexpr bool is_printable<raw::Date> = true;
+template <>
+inline constexpr bool is_printable<raw::Entry> = true;
+template <>
+inline constexpr bool is_printable<raw::LfnEntry> = true;
+}  // namespace fat

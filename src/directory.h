@@ -25,6 +25,9 @@ class Entry {
   std::string long_name_;
 };
 
+template <>
+inline constexpr bool is_printable<Entry> = true;
+
 class Directory {
  public:
   Directory(const raw::Entry* entries) : entries_(entries) {}

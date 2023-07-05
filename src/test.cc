@@ -79,7 +79,7 @@ TEST(ExampleDisk, Regions) {
   }
 
   for (const Entry& entry : dir.entries()) {
-    std::cout << entry.to_string() << std::endl;
+    std::cout << entry << std::endl;
   }
 }
 
