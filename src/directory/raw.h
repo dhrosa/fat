@@ -7,29 +7,28 @@
 
 namespace fat::raw {
 
-struct Time {
+struct [[gnu::packed]] Time {
   std::uint8_t centiseconds;
   std::uint16_t biseconds : 5;
   std::uint16_t minutes : 6;
   std::uint16_t hours : 5;
 
   std::string to_string() const;
-
-} __attribute__((packed));
+};
 static_assert(sizeof(Time) == 3);
 
-struct Date {
+struct [[gnu::packed]] Date {
   std::uint16_t day : 5;
   std::uint16_t month : 4;
   std::uint16_t year_offset_1980 : 7;
 
   std::string to_string() const;
-} __attribute__((packed));
+};
 static_assert(sizeof(Date) == 2);
 
 struct LfnEntry;
 
-struct Entry {
+struct [[gnu::packed]] Entry {
   std::uint8_t stem[8];
   std::uint8_t extension[3];
   std::uint8_t attributes;
@@ -57,11 +56,10 @@ struct Entry {
   bool IsVolume() const { return attributes == 0x08; }
 
   const LfnEntry& as_lfn() const;
-
-} __attribute__((packed));
+};
 static_assert(sizeof(Entry) == 32);
 
-struct LfnEntry {
+struct [[gnu::packed]] LfnEntry {
   std::uint8_t seqnum : 5;
   std::uint8_t unused0 : 1;
   bool is_last : 1;
@@ -80,8 +78,7 @@ struct LfnEntry {
   std::u16string name16() const;
 
   std::string name() const;
-
-} __attribute__((packed));
+};
 static_assert(sizeof(LfnEntry) == sizeof(Entry));
 
 }  // namespace fat::raw
