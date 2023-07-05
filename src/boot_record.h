@@ -3,6 +3,10 @@
 #include <cstdint>
 #include <ostream>
 
+#include "format.h"
+
+namespace fat {
+
 struct [[gnu::packed]] ChsAddress {
   std::uint8_t head;
   std::uint8_t sector : 6;
@@ -14,10 +18,12 @@ struct [[gnu::packed]] ChsAddress {
   }
 
   bool operator==(const ChsAddress& other) const;
+
+  std::string to_string() const;
 };
 static_assert(sizeof(ChsAddress) == 3);
-
-std::ostream& operator<<(std::ostream& s, const ChsAddress& chs);
+template <>
+inline bool constexpr is_printable<ChsAddress> = true;
 
 struct [[gnu::packed]] PartitionEntry {
   std::uint8_t status;
@@ -26,10 +32,12 @@ struct [[gnu::packed]] PartitionEntry {
   ChsAddress chs_end;
   std::uint32_t lba;
   std::uint32_t sector_count;
+
+  std::string to_string() const;
 };
 static_assert(sizeof(PartitionEntry) == 16);
-
-std::ostream& operator<<(std::ostream& s, const PartitionEntry& entry);
+template <>
+inline bool constexpr is_printable<PartitionEntry> = true;
 
 struct [[gnu::packed]] BiosParameterBlock {
   std::uint8_t trampoline[3];
@@ -47,27 +55,33 @@ struct [[gnu::packed]] BiosParameterBlock {
   std::uint16_t heads;
   std::uint32_t hidden_sectors;
   std::uint32_t extended_sectors;
-} __attribute__((packed));
 
-std::ostream& operator<<(std::ostream& s, const BiosParameterBlock& b);
+  std::string to_string() const;
+};
+template <>
+inline bool constexpr is_printable<BiosParameterBlock> = true;
 
-struct ExtendedBootRecord {
+struct [[gnu::packed]] ExtendedBootRecord {
   std::uint8_t drive;
   std::uint8_t windows_nt_flags;
   std::uint8_t signature;
   std::uint32_t serial_number;
   char label[11];
   char system_identifier[8];
-} __attribute__((packed));
 
-std::ostream& operator<<(std::ostream& s, const ExtendedBootRecord& b);
+  std::string to_string() const;
+};
+template <>
+inline bool constexpr is_printable<ExtendedBootRecord> = true;
 
-struct BootRecord {
+struct [[gnu::packed]] BootRecord {
   BiosParameterBlock bpb;
   ExtendedBootRecord ebpb;
   std::uint8_t unused[384];
   PartitionEntry partitions[4];
   std::uint16_t boot_signature;
+
+  std::string to_string() const;
 
   std::uint32_t total_sectors() const {
     return bpb.sectors == 0 ? bpb.extended_sectors : bpb.sectors;
@@ -92,5 +106,7 @@ struct BootRecord {
   }
 };
 static_assert(sizeof(BootRecord) == 512);
+template <>
+inline bool constexpr is_printable<BootRecord> = true;
 
-std::ostream& operator<<(std::ostream& s, const BootRecord& r);
+}  // namespace fat
